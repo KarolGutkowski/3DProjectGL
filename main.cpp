@@ -14,7 +14,6 @@
 #include "scene/Scene.h"
 #include "rendered_item/RenderedItem.h"
 #include "light/PointLight.h"
-#include "models_utilities/Truck/Truck.h"
 #include "textures/texture_utils.h"
 
 void clearBuffers();
