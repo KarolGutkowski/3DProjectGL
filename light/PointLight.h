@@ -1,0 +1,16 @@
+#ifndef POINT_LIGHT_H
+#define POINT_LIGHT_H
+
+class PointLight
+{
+public:
+	glm::vec3 position;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+#endif // !POINT_LIGHT_H

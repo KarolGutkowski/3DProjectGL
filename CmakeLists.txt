@@ -1,0 +1,101 @@
+cmake_minimum_required(VERSION 3.26.4)
+
+project(3DProject CXX C)
+
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(OpenGL REQUIRED)
+
+add_executable(${CMAKE_PROJECT_NAME}
+        main.cpp
+        glad.c
+        utilities/glfw/glfw_utilities.cpp
+        utilities/report_error/report_error.h
+        utilities/glfw/glfw_utilities.h
+        utilities/glad/glad_functions.cpp
+        utilities/glad/glad_functions.h
+        utilities/report_error/report_error.cpp
+        utilities/stb_image/stb_image.h
+        utilities/stb_image/stb_image.cpp
+        camera/camera.h
+        shaders/shaders_utils.h
+        shaders/shaders_utils.cpp
+        shaders/Shader.h
+        utilities/glfw/glfw_callbacks.h
+        utilities/glfw/glfw_callbacks.cpp
+        state.h
+        state.cpp
+        utilities/gl/gl_utilities.cpp
+        utilities/gl/gl_utilities.h
+        renderer/renderer.h
+        renderer/renderer.cpp
+        opengl_abstractions/vertex_buffer/vertex_buffer.h
+        opengl_abstractions/vertex_buffer/vertex_buffer.cpp
+        opengl_abstractions/index_buffer/index_buffer.cpp
+        opengl_abstractions/index_buffer/index_buffer.h
+        opengl_abstractions/vertex_array/vertex_array.h
+        opengl_abstractions/vertex_array/vertex_array.cpp
+        opengl_abstractions/vertex_buffer_layout/vertex_buffer_layout.h
+        opengl_abstractions/vertex_buffer_layout/vertex_buffer_layout.cpp
+        models_utilities/Vertex.h
+        models_utilities/Texture.h
+        models_utilities/Mesh/Mesh.h
+        models_utilities/Mesh/Mesh.cpp
+        models_utilities/Model/Model.h
+        models_utilities/Model/Model.cpp
+        imgui/imgui_demo.cpp
+        imgui/imgui.cpp
+        imgui/imconfig.h
+        imgui/imgui.h
+        imgui/imgui_draw.cpp
+        imgui/imgui_internal.h
+        imgui/imgui_tables.cpp
+        imgui/imgui_widgets.cpp
+        imgui/imstb_rectpack.h
+        imgui/imstb_textedit.h
+        imgui/imstb_truetype.h
+        imgui/imgui_impl_glfw.h
+        imgui/imgui_impl_glfw.cpp
+        imgui/imgui_impl_opengl3.cpp
+        imgui/imgui_impl_opengl3.h
+        imgui/imgui_impl_opengl3_loader.h
+        utilities/imgui/imgui_utilities.h
+        utilities/imgui/imgui_utilites.cpp
+)
+
+add_custom_target(copy_shaders ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${PROJECT_SOURCE_DIR}/shaders
+        ${PROJECT_BINARY_DIR}/shaders
+        COMMENT "Copying shaders to source binary")
+
+add_custom_target(copy_models ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${PROJECT_SOURCE_DIR}/models
+        ${PROJECT_BINARY_DIR}/models
+        COMMENT "Copying models to source binary")
+
+add_dependencies(${CMAKE_PROJECT_NAME} copy_shaders copy_models)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Includes/
+    ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/)
+
+
+add_subdirectory( glfw )
+add_subdirectory(assimp)
+target_link_libraries( ${CMAKE_PROJECT_NAME}
+        glfw
+        OpenGL::GL
+        assimp)
+
+#if(WIN32)
+#    target_link_libraries(${CMAKE_PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/assimp-vc143-mtd.lib)
+#endif()
+#if(APPLE)
+#    target_link_libraries(my_exe ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/)
+#endif()
+
+# remove warning on int to void* cast used in vertex_array.cpp
+set(CMAKE_CXX_FLAGS "-Wno-int-to-void-pointer-cast")
