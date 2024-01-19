@@ -2,12 +2,17 @@
 #define POLICE_CAR_H
 
 #include "models_utilities/Model/Model.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 class PoliceCar : public Model
 {
 public:
 	PoliceCar(const char* path, bool _flippedTexture = false)
 	{
+		current_translation = glm::vec3(0.0f);
+		current_scaling = glm::vec3(1.0f);
+		rotation_degrees = glm::vec3(0.0f);
+
 		flippedTexture = _flippedTexture;
 		loadModel(path);
 
@@ -23,14 +28,89 @@ public:
 
 		has_camera_attached_to_it = true;
 		attached_camera = Camera();
-		attached_camera.Yaw = 90.0f;
-		attached_camera.Pitch = -30.0f;
+		attached_camera.Yaw = -90.0f;
+		attached_camera.Pitch = -23.0f;
+
+		has_lights = true;
+		generateFrontLights();
 	}
 
 	void Draw(Shader& shader) const override
 	{
 		for (const auto& mesh : meshes)
 			mesh.Draw(shader);
+	}
+
+	glm::vec3 camera_relative_position = glm::vec3(1.0f, 4.5f, 6.0f);
+
+	void Translate(glm::vec3 translation_vector) override
+	{
+		current_translation += translation_vector;
+		attached_camera.Position = current_translation + glm::rotateY(camera_relative_position, glm::radians(rotation_degrees.y+90.0f));
+		for (int i = 0; i < front_lights.size(); i++)
+		{
+			front_lights[i].position = current_translation + front_lights_relative_positions[i];
+		}
+	}
+
+	void Scale(glm::vec3 scaling_vector) override
+	{
+		current_scaling *= scaling_vector;
+	}
+
+	bool initial_rotation = true;
+	void Rotate(glm::vec3 rotation_vector) override
+	{ 
+		rotation_degrees += rotation_vector;
+		if (!initial_rotation)
+			attached_camera.Yaw -= rotation_vector.y;
+		initial_rotation = false;
+	}
+
+	std::vector<SpotLight>& getModelSpotLights() override
+	{
+		return front_lights;
+	}
+		
+
+private:
+	std::vector<SpotLight> front_lights;
+	std::vector<glm::vec3> front_lights_relative_positions;
+
+	/*std::vector<SpotLight> back_lights;
+	std::vector<glm::vec3> back_lights_relative_positions;*/
+
+	void generateFrontLights()
+	{
+		front_lights_relative_positions.push_back(glm::vec3(0.885f, 0.855f, -1.25f));
+		front_lights_relative_positions.push_back(glm::vec3(1.85f, 0.855f, -1.25f));
+
+		auto spotLightLeft = SpotLight();
+		spotLightLeft.position = front_lights_relative_positions[0];
+		spotLightLeft.cutOffClose = glm::cos(glm::radians(12.5f));
+		spotLightLeft.cutOffFar = glm::cos(glm::radians(17.5f));
+		spotLightLeft.direction = glm::vec3(0.0f, -0.2f, -1.0f); //for now
+		spotLightLeft.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		spotLightLeft.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+		spotLightLeft.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightLeft.constant = 1.0f;
+		spotLightLeft.linear = 0.09f;
+		spotLightLeft.quadratic = 0.032f; 
+
+		auto spotLightRight = SpotLight();
+		spotLightRight.position = front_lights_relative_positions[1];
+		spotLightRight.cutOffClose = glm::cos(glm::radians(12.5f));
+		spotLightRight.cutOffFar = glm::cos(glm::radians(17.5f));
+		spotLightRight.direction = glm::vec3(0.0f, -0.2f, -1.0f); //for now
+		spotLightRight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		spotLightRight.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+		spotLightRight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightRight.constant = 1.0f;
+		spotLightRight.linear = 0.09f;
+		spotLightRight.quadratic = 0.032f;
+
+		front_lights.push_back(spotLightLeft);
+		front_lights.push_back(spotLightRight);
 	}
 
 };

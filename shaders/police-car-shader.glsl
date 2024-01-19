@@ -44,10 +44,12 @@ uniform vec3 viewPos;
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_emissive1;
+uniform vec3 fogColor;
 #define NR_POINT_LIGHTS 4  
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+float getFogFactor(float d);
 
 void main()
 {
@@ -62,7 +64,9 @@ void main()
     vec3 currentTexture = vec3(texture(texture_diffuse1, TexCoords));
     result += vec3(texture(texture_emissive1, TexCoords)) * vec3(currentTexture);
 
-    FragColor = vec4(result, 1.0f);
+    float fogFactor = getFogFactor(distance(viewPos, FragPos));
+
+    FragColor = mix(vec4(result, 1.0f), vec4(fogColor, 1.0f), fogFactor);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
@@ -84,4 +88,15 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     vec3 specular = light.specular * spec * specularTexture;
 
     return (ambient + diffuse + specular) * attenuation;
+}
+
+float getFogFactor(float d)
+{
+const float FogMax = 50.0;
+const float FogMin = 20.0;
+
+if (d>=FogMax) return 1;
+if (d<=FogMin) return 0;
+
+return 1 - (FogMax - d) / (FogMax - FogMin);
 }

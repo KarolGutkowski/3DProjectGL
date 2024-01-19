@@ -1,5 +1,6 @@
 #include "glad/glad.h"
 #include "glfw_callbacks.h"
+#include "state.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
