@@ -15,6 +15,7 @@
 #include "rendered_item/RenderedItem.h"
 #include "light/PointLight.h"
 #include "textures/texture_utils.h"
+#include "models_utilities/BezierSurface/BezierSurface.h"
 
 void clearBuffers();
 std::vector<PointLight> generatePointLights(glm::vec3 pointLightPositions[]);
@@ -32,6 +33,8 @@ int main(void)
     setWindowCallbacks(window);
     setGlOptions();
     initializeImGui(window);
+
+    BezierSurface bezier = BezierSurface(1);
 
     float vertices[] = {
             // positions          // normals
