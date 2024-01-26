@@ -14,7 +14,9 @@ void destroyImGuiContext() {
     ImGui::DestroyContext();
 }
 
-void generateImGuiWindow(Camera& camera, Camera& camera2) {
+void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, 
+    DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights) 
+{
     ImGuiIO& io = ImGui::GetIO();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -43,6 +45,37 @@ void generateImGuiWindow(Camera& camera, Camera& camera2) {
             ImGui::SliderFloat("yaw", &camera2.Yaw, -180.0f, 180.0f);
             ImGui::SliderFloat("pitch", &camera2.Pitch, -89.0f, 89.0f);
             ImGui::SliderFloat3("up", (float *) &camera2.WorldUp, 0.0f, 1.0f);
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Car lights"))
+        {
+            ImGui::SliderFloat3("front left direction", &police_car_lights[0].direction.x, -1.0f, 1.0f);
+            ImGui::SliderFloat3("front right direction", &police_car_lights[1].direction.x, -1.0f, 1.0f);
+            ImGui::SliderFloat3("back left direction", &police_car_lights[2].direction.x, -1.0f, 1.0f);
+            ImGui::SliderFloat3("back right direction", &police_car_lights[3].direction.x, -1.0f, 1.0f);
+
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Scenery"))
+        {
+            ImGui::SliderFloat3("surronding color", &fog_color.x, 0.0f, 1.0f);
+
+            ImGui::SliderFloat3("directional light color", &dir_light.diffuse.x, 0.0f, 1.0f);
+
+            if (ImGui::Button("Day"))
+            {
+                fog_color = glm::vec3(163 / 255.0f, 234 / 255.0f, 255 / 255.0f);
+                dir_light.diffuse = glm::vec3(1.0f);
+            }
+
+            if (ImGui::Button("Night"))
+            {
+                fog_color = glm::vec3(0.1f, 0.1f, 0.1f);
+                dir_light.diffuse = glm::vec3(0.0f);
+            }
+
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

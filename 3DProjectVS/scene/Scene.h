@@ -15,7 +15,14 @@ public:
 		std::vector<PointLight>& point_lights,
 		/*std::vector<SpotLight>& spot_lights,*/
 		glm::vec3 fog_color): 
-		items(items), point_lights(point_lights), fogColor(fog_color), spot_lights(spot_lights) {}
+		items(items), point_lights(point_lights), fogColor(fog_color), spot_lights(spot_lights) 
+	{
+		dir_light = DirectionalLight();
+		dir_light.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+		dir_light.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		dir_light.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);/*glm::vec3(217/255.0f, 163/255.0f, 37/255.0f);*/
+		dir_light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	}
 
 	void addModel(RenderedItem& item)
 	{
@@ -34,7 +41,7 @@ public:
 		//items[0].rotateByDegreesAroundY(current_rotation_sign * 0.1f); 
 		//current_rotation_sign *= -1;
 		spot_lights = items[0].getItemsLights();
-		items[0].render(shading_type, point_lights, /*dir_lights,*/ spot_lights, camera, fogColor);
+		items[0].render(shading_type, point_lights, dir_light, spot_lights, camera, fogColor);
 	}
 
 	std::vector<SpotLight> getSpotLights()
@@ -42,11 +49,15 @@ public:
 		return items[0].getItemsLights();;
 	}
 
+	DirectionalLight& getDirLight()
+	{
+		return dir_light;
+	}
 private:
 	glm::vec3 fogColor;
 	std::vector<RenderedItem> items;
 	std::vector<PointLight>& point_lights;
-	/*std::vector<DirectionalLight>& dir_lights;*/
+	DirectionalLight dir_light;
 	std::vector<SpotLight> spot_lights;
 };
 

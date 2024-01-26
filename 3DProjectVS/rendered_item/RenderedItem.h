@@ -19,7 +19,7 @@ public:
 
 	void render(ShaderType shading_type,
 		const std::vector<PointLight> point_lights,
-		/*const std::vector<DirectionalLight> dir_lights,*/
+		const DirectionalLight dir_light,
 		const std::vector<SpotLight> spot_lights,
 		Camera& camera,
 		glm::vec3 fogColor)
@@ -30,6 +30,7 @@ public:
 		setUpModelWithShader(phongShader, model.get_model_matrix());
 		setUpFog(phongShader, fogColor);
 		setUpSpotLights(phongShader, spot_lights);
+		setUpDirectionalLight(phongShader, dir_light);
 
 		model.Draw(phongShader);
 	}
@@ -57,7 +58,8 @@ public:
 			shader.setVec3(spotLightsNameInShader + ".position", spot_lights[i].position);
 			shader.setVec3(spotLightsNameInShader + ".ambient", spot_lights[i].ambient);
 			shader.setVec3(spotLightsNameInShader + ".diffuse", spot_lights[i].diffuse);
-			shader.setVec3(spotLightsNameInShader + ".specular", spot_lights[i].diffuse);
+			shader.setVec3(spotLightsNameInShader + ".specular", spot_lights[i].specular);
+			shader.setVec3(spotLightsNameInShader + ".direction", spot_lights[i].direction);
 			shader.setFloat(spotLightsNameInShader + ".constant", spot_lights[i].constant);
 			shader.setFloat(spotLightsNameInShader + ".linear", spot_lights[i].linear);
 			shader.setFloat(spotLightsNameInShader + ".quadratic", spot_lights[i].quadratic);
@@ -66,7 +68,16 @@ public:
 		}
 	}
 
-	void setUpPointLightsWithShader(Shader& shader, const std::vector<PointLight> point_lights)
+	static void setUpDirectionalLight(Shader& shader, const DirectionalLight dir_light)
+	{
+		shader.setVec3("directionalLight.direction", dir_light.direction);
+		shader.setVec3("directionalLight.ambient", dir_light.ambient);
+		shader.setVec3("directionalLight.diffuse", dir_light.diffuse);
+		shader.setVec3("directionalLight.specular", dir_light.specular);
+	}
+
+
+	static void setUpPointLightsWithShader(Shader& shader, const std::vector<PointLight> point_lights)
 	{
 		for (int i = 0; i < point_lights.size(); i++)
 		{

@@ -41,15 +41,15 @@ public:
 			mesh.Draw(shader);
 	}
 
-	glm::vec3 camera_relative_position = glm::vec3(1.0f, 4.5f, 6.0f);
+	glm::vec3 camera_relative_position = glm::vec3(1.0f, 4.5f, 9.0f);
 
 	void Translate(glm::vec3 translation_vector) override
 	{
 		current_translation += translation_vector;
 		attached_camera.Position = current_translation + glm::rotateY(camera_relative_position, glm::radians(rotation_degrees.y+90.0f));
-		for (int i = 0; i < front_lights.size(); i++)
+		for (int i = 0; i < car_lights.size(); i++)
 		{
-			front_lights[i].position = current_translation + front_lights_relative_positions[i];
+			car_lights[i].position = current_translation + car_lights_relative_positions[i];
 		}
 	}
 
@@ -69,26 +69,28 @@ public:
 
 	std::vector<SpotLight>& getModelSpotLights() override
 	{
-		return front_lights;
+		return car_lights;
 	}
 		
 
 private:
-	std::vector<SpotLight> front_lights;
-	std::vector<glm::vec3> front_lights_relative_positions;
+	std::vector<SpotLight> car_lights;
+	std::vector<glm::vec3> car_lights_relative_positions;
 
 	/*std::vector<SpotLight> back_lights;
 	std::vector<glm::vec3> back_lights_relative_positions;*/
 
 	void generateFrontLights()
 	{
-		front_lights_relative_positions.push_back(glm::vec3(0.885f, 0.855f, -1.25f));
-		front_lights_relative_positions.push_back(glm::vec3(1.85f, 0.855f, -1.25f));
+		car_lights_relative_positions.push_back(glm::vec3(0.885f, 0.855f, -1.25f));
+		car_lights_relative_positions.push_back(glm::vec3(1.85f, 0.855f, -1.25f));
+		car_lights_relative_positions.push_back(glm::vec3(0.885f, 0.855f, 2.05f));
+		car_lights_relative_positions.push_back(glm::vec3(1.85f, 0.855f, 2.05f));
 
 		auto spotLightLeft = SpotLight();
-		spotLightLeft.position = front_lights_relative_positions[0];
-		spotLightLeft.cutOffClose = glm::cos(glm::radians(12.5f));
-		spotLightLeft.cutOffFar = glm::cos(glm::radians(17.5f));
+		spotLightLeft.position = car_lights_relative_positions[0];
+		spotLightLeft.cutOffClose = glm::cos(glm::radians(20.5f));
+		spotLightLeft.cutOffFar = glm::cos(glm::radians(30.5f));
 		spotLightLeft.direction = glm::vec3(0.0f, -0.2f, -1.0f); //for now
 		spotLightLeft.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 		spotLightLeft.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -98,9 +100,9 @@ private:
 		spotLightLeft.quadratic = 0.032f; 
 
 		auto spotLightRight = SpotLight();
-		spotLightRight.position = front_lights_relative_positions[1];
-		spotLightRight.cutOffClose = glm::cos(glm::radians(12.5f));
-		spotLightRight.cutOffFar = glm::cos(glm::radians(17.5f));
+		spotLightRight.position = car_lights_relative_positions[1];
+		spotLightRight.cutOffClose = glm::cos(glm::radians(20.5f));
+		spotLightRight.cutOffFar = glm::cos(glm::radians(30.5f));
 		spotLightRight.direction = glm::vec3(0.0f, -0.2f, -1.0f); //for now
 		spotLightRight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 		spotLightRight.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -109,8 +111,35 @@ private:
 		spotLightRight.linear = 0.09f;
 		spotLightRight.quadratic = 0.032f;
 
-		front_lights.push_back(spotLightLeft);
-		front_lights.push_back(spotLightRight);
+
+		auto spotLightLeftBack = SpotLight();
+		spotLightLeftBack.position = car_lights_relative_positions[2];
+		spotLightLeftBack.cutOffClose = glm::cos(glm::radians(20.5f));
+		spotLightLeftBack.cutOffFar = glm::cos(glm::radians(30.5f));
+		spotLightLeftBack.direction = glm::vec3(0.0f, -0.8f, 1.0f); //for now
+		spotLightLeftBack.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		spotLightLeftBack.diffuse = glm::vec3(0.8f, 0.0f, 0.0f);
+		spotLightLeftBack.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightLeftBack.constant = 1.0f;
+		spotLightLeftBack.linear = 0.09f;
+		spotLightLeftBack.quadratic = 0.032f;
+
+		auto spotLightRightBack = SpotLight();
+		spotLightRightBack.position = car_lights_relative_positions[3];
+		spotLightRightBack.cutOffClose = glm::cos(glm::radians(20.5f));
+		spotLightRightBack.cutOffFar = glm::cos(glm::radians(30.5f));
+		spotLightRightBack.direction = glm::vec3(0.0f, -0.8f, 1.0f); //for now
+		spotLightRightBack.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		spotLightRightBack.diffuse = glm::vec3(0.8f, 0.0f, 0.0f);
+		spotLightRightBack.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+		spotLightRightBack.constant = 1.0f;
+		spotLightRightBack.linear = 0.09f;
+		spotLightRightBack.quadratic = 0.032f;
+
+		car_lights.push_back(spotLightLeft);
+		car_lights.push_back(spotLightRight);
+		car_lights.push_back(spotLightLeftBack);
+		car_lights.push_back(spotLightRightBack);
 	}
 
 };

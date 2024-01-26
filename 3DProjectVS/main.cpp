@@ -21,7 +21,7 @@ std::vector<PointLight> generatePointLights(glm::vec3 pointLightPositions[]);
 void renderLight(Shader shader, const vertex_array& vao, glm::vec3 position, Camera camera, glm::vec3 color, glm::vec3 fogColor);
 void setUpLights(Shader& shader, std::vector<PointLight> pointLights);
 void drawWithShader(Shader shader, glm::vec3 pointLightPositions[], const Model& element, glm::mat4 model);
-void render_street_with_shader(Shader shader, const vertex_array& vao, std::vector<PointLight> pointLights, GLuint texture_base, GLuint texture_specular, GLuint texture_normal, int order_number, Camera curent_camera, glm::vec3 fogColor, std::vector<SpotLight> spotLights);
+void render_street_with_shader(Shader shader, const vertex_array& vao, std::vector<PointLight> pointLights, GLuint texture_base, GLuint texture_specular, GLuint texture_normal, int order_number, Camera curent_camera, glm::vec3 fogColor, std::vector<SpotLight> spotLights, DirectionalLight dir_light);
 
 int main(void)
 {
@@ -105,9 +105,9 @@ int main(void)
 
     glm::vec3 pointLightPositions[] = {
             glm::vec3(0.0f,  0.5f,  1.0f),
-            glm::vec3(5.0f, 2.0f, 3.0f),
-            glm::vec3(5.0f,  2.0f, -8.0f),
-            glm::vec3(-5.0f,  2.0f, -9.0f)
+            glm::vec3(3.0f, 2.0f, 3.0f),
+            glm::vec3(3.0f,  2.0f, -8.0f),
+            glm::vec3(-3.0f,  2.0f, -9.0f)
     };
 
     auto floor_vbo = vertex_buffer(floor_vertices, sizeof(floor_vertices));
@@ -132,7 +132,7 @@ int main(void)
     auto police_car = RenderedItem(car, carShader, carShader, carShader);
     std::vector<RenderedItem> items { police_car };
 
-    auto fog_color = glm::vec3(0.1f);
+    auto fog_color = glm::vec3(163 / 255.0f, 234 / 255.0f, 255 / 255.0f);
 
     auto scene = Scene(items, lights, fog_color);
 
@@ -143,7 +143,7 @@ int main(void)
     car.attached_camera.Position = glm::vec3(1.0f, 4.5f, 6.0f);
     car.Rotate(glm::vec3(0.0f, -90.0f, 0.0f));
     //car.model_matrix = glm::translate(car.model_matrix, glm::vec3(0.0f, 0.0f, 11.0f));
-    while (!glfwWindowShouldClose(window)) 
+    while (!glfwWindowShouldClose(window))  
     {
         Camera current_camera = car.attached_camera;
         processInput(window, camera);
@@ -151,8 +151,8 @@ int main(void)
 
         ImGuiNewFrame();
 
-        generateImGuiWindow(camera, current_camera);
-        glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights());
+        glClearColor(fog_color.x, fog_color.y, fog_color.z, 0.1f);
 
 
         for (int i = 0; i < lights.size(); i++)
@@ -160,13 +160,13 @@ int main(void)
             lights[0].position.z -= 0.01f;
             renderLight(light_shader, vao, lights[i].position, current_camera, lights[i].diffuse, fog_color);
         }
-
+        carShader = Shader("./shaders/police-car-shader.glsl");
         scene.render(ShaderType::Phong, current_camera);
 
         auto floor_shader = Shader("./shaders/floor_shader.glsl");
         for (int i = 0; i < 20; i++)
         {
-            render_street_with_shader(floor_shader, floor_vao, lights, floor_texture_base, floor_texture_specular, floor_texture_normal,i, current_camera, fog_color, scene.getSpotLights());
+            render_street_with_shader(floor_shader, floor_vao, lights, floor_texture_base, floor_texture_specular, floor_texture_normal,i, current_camera, fog_color, scene.getSpotLights(), scene.getDirLight());
         }
         renderImGui();
 
@@ -256,10 +256,11 @@ void renderLight(Shader shader, const vertex_array& vao, glm::vec3 position, Cam
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
-void render_street_with_shader(Shader shader, const vertex_array& vao, std::vector<PointLight> pointLights, GLuint texture_base, GLuint texture_specular, GLuint texture_normal, int order_number, Camera curent_camera, glm::vec3 fogColor, std::vector<SpotLight> spotLights) {
+void render_street_with_shader(Shader shader, const vertex_array& vao, std::vector<PointLight> pointLights, GLuint texture_base, GLuint texture_specular, GLuint texture_normal, int order_number, Camera curent_camera, glm::vec3 fogColor, std::vector<SpotLight> spotLights, DirectionalLight dir_light) {
     shader.use();
     setUpLights(shader, pointLights);
     RenderedItem::setUpSpotLights(shader, spotLights);
+    RenderedItem::setUpDirectionalLight(shader, dir_light);
 
     float last_camera_postion_checkpoint = std::ceil(curent_camera.Position.z / 10.0f)*10.0f;
 

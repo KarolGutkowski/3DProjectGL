@@ -1,4 +1,4 @@
-#shader vertex
+//#shader vertex
 #version 330 core
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
@@ -20,7 +20,7 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 
-#shader fragment
+//#shader fragment
 #version 330 core
 out vec4 FragColor;
 
@@ -40,6 +40,16 @@ struct PointLight {
     vec3 specular;
 };
 
+struct DirectionalLight
+{
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+
 uniform vec3 viewPos;
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -47,8 +57,10 @@ uniform sampler2D texture_emissive1;
 uniform vec3 fogColor;
 #define NR_POINT_LIGHTS 4  
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform DirectionalLight directionalLight;
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalculateDirectionalLight(DirectionalLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture);
 float getFogFactor(float d);
 
 void main()
@@ -65,7 +77,7 @@ void main()
     result += vec3(texture(texture_emissive1, TexCoords)) * vec3(currentTexture);
 
     float fogFactor = getFogFactor(distance(viewPos, FragPos));
-
+    result += CalculateDirectionalLight(directionalLight, norm, FragPos, viewDir, currentTexture, vec3(0.3f,0.3f,0.3f));
     FragColor = mix(vec4(result, 1.0f), vec4(fogColor, 1.0f), fogFactor);
 }
 
@@ -100,3 +112,21 @@ if (d<=FogMin) return 0;
 
 return 1 - (FogMax - d) / (FogMax - FogMin);
 }
+
+vec3 CalculateDirectionalLight(DirectionalLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture)
+{
+    vec3 ambient = light.ambient * currentTexture;
+
+    // diffuse
+    vec3 lightDir = normalize(-light.direction);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * diff * currentTexture;
+
+    // specular
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 65.0f);
+    vec3 specular = light.specular * spec * specularTexture;
+
+    return ambient + diffuse + specular;
+}
+
