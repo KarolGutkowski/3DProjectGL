@@ -34,7 +34,8 @@ int main(void)
     setGlOptions();
     initializeImGui(window);
 
-    BezierSurface bezier = BezierSurface(1);
+    auto bezier_shader = Shader("./shaders/shader.glsl");
+    BezierSurface bezier = BezierSurface(4, bezier_shader);
 
     float vertices[] = {
             // positions          // normals
@@ -137,7 +138,7 @@ int main(void)
 
     auto fog_color = glm::vec3(163 / 255.0f, 234 / 255.0f, 255 / 255.0f);
 
-    auto scene = Scene(items, lights, fog_color);
+    auto scene = Scene(items, lights, fog_color, bezier);
 
     camera.Position.y = 1.0f;
     camera.Position.x = 0.5f;
@@ -148,7 +149,7 @@ int main(void)
     //car.model_matrix = glm::translate(car.model_matrix, glm::vec3(0.0f, 0.0f, 11.0f));
     while (!glfwWindowShouldClose(window))  
     {
-        Camera current_camera = car.attached_camera;
+        Camera current_camera = camera;
         processInput(window, camera);
         clearBuffers();
 

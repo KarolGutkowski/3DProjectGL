@@ -45,7 +45,7 @@ public:
 		model.Rotate(glm::vec3(0.0f, degrees, 0.0f));
 	}
 
-	void setUpFog(Shader& shader, glm::vec3 fogColor)
+	static void setUpFog(Shader& shader, glm::vec3 fogColor)
 	{
 		shader.setVec3("fogColor", fogColor);
 	}
@@ -92,12 +92,12 @@ public:
 		}
 	}
 	
-	void setUpModelWithShader(Shader& shader, glm::mat4 model_matrix)
+	static void setUpModelWithShader(Shader& shader, glm::mat4 model_matrix)
 	{
 		shader.set4Matrix("model", model_matrix);
 	}
 
-	void setUpCameraWithShader(Shader& shader, Camera& camera)
+	static void setUpCameraWithShader(Shader& shader, Camera& camera)
 	{
 		auto view = camera.GetViewMatrix();
 		shader.set4Matrix("view", view);

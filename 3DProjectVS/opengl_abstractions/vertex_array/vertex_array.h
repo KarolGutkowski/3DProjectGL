@@ -8,6 +8,7 @@
 class vertex_array {
 private:
     uint32_t rendererId;
+    uint32_t vertexAtttribsCount;
 public:
     vertex_array();
     ~vertex_array();
@@ -16,6 +17,7 @@ public:
     void unbind() const;
 
     void add_buffer(const vertex_buffer& vbo, const vertex_buffer_layout& layout);
+    void add_buffer_in_new_vbo(const vertex_buffer& vbo, const vertex_buffer_layout& layout);
 };
 
 #endif
