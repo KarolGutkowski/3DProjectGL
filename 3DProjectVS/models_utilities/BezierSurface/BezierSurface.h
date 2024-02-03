@@ -24,7 +24,13 @@ public:
 		Camera& camera,
 		glm::vec3 fogColor);
 	void ChangeControlPointTo(float value, int i, int j);
+	void controlPointsHaveChanged()
+	{
+		recalculate_bezier = true;
+	}
+	std::array<std::array<float, 4>, 4> control_points;
 private:
+	void generateTriangles();
 	void InitializeControlPoints();
 	Triangle GetUpperRightTriangleAt(int i, int j);
 	Triangle GetLowerRightTriangleAt(int i, int j);
@@ -36,13 +42,12 @@ private:
 	const float default_low_control_point_value = 1.0f;
 	const float default_high_control_point_value = 0.2f;
 	Bernstein bernstein_calculator;
-	std::array<std::array<float, 4>,4> control_points;
 	glm::vec3 NormalToPointAt(float u, float v);
 
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec3> colors;
-
+	bool recalculate_bezier;
 	/*Shader& constantShader;
 	Shader& gourardShader;*/
 	Shader& phongShader;

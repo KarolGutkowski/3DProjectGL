@@ -15,9 +15,8 @@ public:
 	Scene(std::vector<RenderedItem> items,
 		std::vector<PointLight>& point_lights,
 		/*std::vector<SpotLight>& spot_lights,*/
-		glm::vec3 fog_color,
 		BezierSurface bezier): 
-		items(items), point_lights(point_lights), fogColor(fog_color), spot_lights(spot_lights), bezier(bezier)
+		items(items), point_lights(point_lights), spot_lights(spot_lights), bezier(bezier)
 	{
 		dir_light = DirectionalLight();
 		dir_light.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -37,7 +36,7 @@ public:
 	}
 
 	int current_rotation_sign = 1;
-	void render(ShaderType shading_type, Camera camera)
+	void render(ShaderType shading_type, Camera camera, glm::vec3 fogColor)
 	{
 		items[0].moveBy(glm::vec3(0.0f, 0.0f, -0.2f));
 		//items[0].rotateByDegreesAroundY(current_rotation_sign * 0.1f); 
@@ -45,6 +44,11 @@ public:
 		spot_lights = items[0].getItemsLights();
 		items[0].render(shading_type, point_lights, dir_light, spot_lights, camera, fogColor);
 		bezier.render(shading_type, point_lights, dir_light, spot_lights, camera, fogColor);
+	}
+
+	glm::vec3 get_car_position()
+	{
+		return items[0].get_current_position();
 	}
 
 	std::vector<SpotLight> getSpotLights()
@@ -56,13 +60,12 @@ public:
 	{
 		return dir_light;
 	}
+	BezierSurface bezier;
 private:
-	glm::vec3 fogColor;
 	std::vector<RenderedItem> items;
 	std::vector<PointLight>& point_lights;
 	DirectionalLight dir_light;
 	std::vector<SpotLight> spot_lights;
-	BezierSurface bezier;
 };
 
 

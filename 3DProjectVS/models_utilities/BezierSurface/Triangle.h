@@ -15,6 +15,10 @@ public:
 		glm::vec3 edge1 = B - A;
 		glm::vec3 edge2 = C - A;
 		glm::vec3 default_normal_value = glm::cross(edge1, edge2);
+		
+		if (default_normal_value.z < 0)
+			default_normal_value *= -1;
+
 		vertex_normals = { default_normal_value , default_normal_value , default_normal_value };
 	}
 	std::array<glm::vec3, 3> vertex_colors;

@@ -11,10 +11,17 @@ BezierSurface::BezierSurface(int triangulization_level, Shader& phongShader): tr
 	InitializeControlPoints();
 	bernstein_calculator = Bernstein();
 
+	generateTriangles();
+	
+}
+
+void BezierSurface::generateTriangles()
+{
+	triangles.clear();
 	for (int i = 0; i < triangulization_level; i++)
 	{
 		for (int j = 0; j < triangulization_level; j++)
-		{ 
+		{
 			auto upperTriangle = GetUpperRightTriangleAt(i, j);
 			auto lowerTriangle = GetLowerRightTriangleAt(i, j);
 
@@ -22,6 +29,7 @@ BezierSurface::BezierSurface(int triangulization_level, Shader& phongShader): tr
 			triangles.push_back(lowerTriangle);
 		}
 	}
+	recalculate_bezier = false;
 }
 
 void BezierSurface::InitializeControlPoints()
@@ -128,6 +136,16 @@ void BezierSurface::render(ShaderType shading_type, const std::vector<PointLight
 	const DirectionalLight dir_light, const std::vector<SpotLight> spot_lights,
 	Camera& camera, glm::vec3 fogColor)
 {
+	vertices.clear();
+	normals.clear();
+	colors.clear();
+
+	if (recalculate_bezier)
+	{
+		generateTriangles();
+	}
+	
+	int counter = 0;
 	for (const auto& triangle : triangles)
 	{ 
 		for (int i = 0; i < 3; i++)
@@ -138,14 +156,14 @@ void BezierSurface::render(ShaderType shading_type, const std::vector<PointLight
 		}
 	}
 
-	auto vertices_vbo = vertex_buffer(&vertices[0], vertices.size()*sizeof(float));
-	auto normals_vbo = vertex_buffer(&normals[0], normals.size() * sizeof(float));
-	auto colors_vbo = vertex_buffer(&colors[0], colors.size() * sizeof(float));
+	auto vertices_vbo = vertex_buffer(&vertices[0], vertices.size()*3 * sizeof(float));
+	auto normals_vbo = vertex_buffer(&normals[0], normals.size() * 3 * sizeof(float));
+	auto colors_vbo = vertex_buffer(&colors[0], colors.size() * 3 * sizeof(float));
 
 	auto vertices_layout = vertex_buffer_layout();
-	vertices_layout.push<float>(3);
+	vertices_layout.push<float>(3); 
 
-	auto normals_layout = vertex_buffer_layout();
+	auto normals_layout = vertex_buffer_layout(); 
 	normals_layout.push<float>(3);
 
 	auto colors_layout = vertex_buffer_layout();
@@ -157,20 +175,23 @@ void BezierSurface::render(ShaderType shading_type, const std::vector<PointLight
 	vao.add_buffer_in_new_vbo(colors_vbo, colors_layout);
 
 	auto model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-10.0f, -1.0f, -10.0f));
-	model = glm::scale(model, glm::vec3(10.0f, 30.0f, 20.0f)); //uniform scaling x10 for visibility
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	//model = glm::translate(model, glm::vec3(-15.0f, -5.0f, -60.0f));
+	model = glm::scale(model, glm::vec3(2.0f)); //uniform scaling x10 for visibility
+	//model = glm::rotate(model, glm::radians((float)glfwGetTime()*10.0f), glm::vec3(0.0, 1.0f, 0.0f));
 	auto view = camera.GetViewMatrix();
 	auto projection = glm::perspective(glm::radians(camera.Zoom), (float)1200 / (float)900, 0.1f, 100.0f);
 
 	auto shader = phongShader; // TODO change this later to any shader type chosen in rendering
+	shader = Shader("./shaders/shader.glsl"); 
 	shader.use();
 	
-	RenderedItem::setUpPointLightsWithShader(phongShader, point_lights);
-	RenderedItem::setUpCameraWithShader(phongShader, camera);
-	RenderedItem::setUpModelWithShader(phongShader, model);
-	RenderedItem::setUpFog(phongShader, fogColor);
-	RenderedItem::setUpSpotLights(phongShader, spot_lights);
-	RenderedItem::setUpDirectionalLight(phongShader, dir_light);
+	RenderedItem::setUpPointLightsWithShader(shader, point_lights);
+	RenderedItem::setUpCameraWithShader(shader, camera);
+	RenderedItem::setUpModelWithShader(shader, model);
+	RenderedItem::setUpFog(shader, fogColor);
+	RenderedItem::setUpSpotLights(shader, spot_lights);
+	RenderedItem::setUpDirectionalLight(shader, dir_light);
 
 	vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());

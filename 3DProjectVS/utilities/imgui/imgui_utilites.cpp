@@ -15,7 +15,9 @@ void destroyImGuiContext() {
 }
 
 void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, 
-    DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights) 
+    DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights,
+    BezierSurface& bezier,
+    Camera_Option& chosen_camera)
 {
     ImGuiIO& io = ImGui::GetIO();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -27,6 +29,7 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
 
     if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None)) {
         if (ImGui::BeginTabItem("Movable camera")) {
+            chosen_camera = Camera_Option::STATIONARY;
             ImGui::SliderFloat("camera X", &camera.Position.x, -100.0f, 100.0f);
             ImGui::SliderFloat("camera Y", &camera.Position.y, -100.0f, 100.0f);
             ImGui::SliderFloat("camera Z", &camera.Position.z, -100.0f, 100.0f);
@@ -38,6 +41,7 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
         }
         if (ImGui::BeginTabItem("Object camera"))
         {
+            chosen_camera = Camera_Option::FOLLOW_THE_CAR;
             ImGui::SliderFloat("camera X", &camera2.Position.x, -100.0f, 100.0f);
             ImGui::SliderFloat("camera Y", &camera2.Position.y, -100.0f, 100.0f);
             ImGui::SliderFloat("camera Z", &camera2.Position.z, -100.0f, 100.0f);
@@ -45,6 +49,12 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
             ImGui::SliderFloat("yaw", &camera2.Yaw, -180.0f, 180.0f);
             ImGui::SliderFloat("pitch", &camera2.Pitch, -89.0f, 89.0f);
             ImGui::SliderFloat3("up", (float *) &camera2.WorldUp, 0.0f, 1.0f);
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("look at car camera"))
+        {
+            chosen_camera = Camera_Option::LOOK_AT_CAR;
             ImGui::EndTabItem();
         }
 
@@ -78,13 +88,26 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
 
             ImGui::EndTabItem();
         }
+
+        if (ImGui::BeginTabItem("Bezier"))
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    std::string slider_name = "(" + std::to_string(i) + "," + std::to_string(j) + ")";
+                    if( ImGui::SliderFloat(slider_name.c_str(), &bezier.control_points[i][j], -2.0f, 2.0f))
+                    {
+                        bezier.controlPointsHaveChanged();
+                    }
+                }
+            }
+            
+            ImGui::EndTabItem();
+        }
+
         ImGui::EndTabBar();
     }
-
-    if (ImGui::Button("Button"))
-        counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::End();

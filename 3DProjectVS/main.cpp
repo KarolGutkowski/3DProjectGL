@@ -108,7 +108,7 @@ int main(void)
     auto car = PoliceCar("./models/car/cars.obj", false);
 
     glm::vec3 pointLightPositions[] = {
-            glm::vec3(0.0f,  0.5f,  1.0f),
+            glm::vec3(0.0f,  2.0f,  0.0f),
             glm::vec3(3.0f, 2.0f, 3.0f),
             glm::vec3(3.0f,  2.0f, -8.0f),
             glm::vec3(-3.0f,  2.0f, -9.0f)
@@ -138,7 +138,7 @@ int main(void)
 
     auto fog_color = glm::vec3(163 / 255.0f, 234 / 255.0f, 255 / 255.0f);
 
-    auto scene = Scene(items, lights, fog_color, bezier);
+    auto scene = Scene(items, lights, bezier);
 
     camera.Position.y = 1.0f;
     camera.Position.x = 0.5f;
@@ -147,25 +147,40 @@ int main(void)
     car.attached_camera.Position = glm::vec3(1.0f, 4.5f, 6.0f);
     car.Rotate(glm::vec3(0.0f, -90.0f, 0.0f));
     //car.model_matrix = glm::translate(car.model_matrix, glm::vec3(0.0f, 0.0f, 11.0f));
+    auto chosen_camera_option = Camera_Option::STATIONARY;
+
+    Camera camera_looking_at_car = Camera();
+    camera_looking_at_car.Position.y = 4.0f;
+    camera_looking_at_car.Position.z = -15.0f;
+    camera_looking_at_car.Position.x = -10.0f;
+    camera_looking_at_car.update_with_front = true;
+    //camera_looking_at_car.Front = car. camera_looking_at_car.Position//
     while (!glfwWindowShouldClose(window))  
     {
-        Camera current_camera = camera;
-        processInput(window, camera);
+        camera_looking_at_car.Front = scene.get_car_position() - camera_looking_at_car.Position;
+
         clearBuffers();
+        Camera current_camera = camera;
+
+        if (chosen_camera_option == Camera_Option::FOLLOW_THE_CAR)
+            current_camera = car.attached_camera;
+        else if (chosen_camera_option == Camera_Option::LOOK_AT_CAR)
+            current_camera = camera_looking_at_car;
+
+        processInput(window, camera);
 
         ImGuiNewFrame();
 
-        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights());
+        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights(), scene.bezier, chosen_camera_option);
         glClearColor(fog_color.x, fog_color.y, fog_color.z, 0.1f);
 
 
         for (int i = 0; i < lights.size(); i++)
         {
-            lights[0].position.z -= 0.01f;
             renderLight(light_shader, vao, lights[i].position, current_camera, lights[i].diffuse, fog_color);
         }
         carShader = Shader("./shaders/police-car-shader.glsl");
-        scene.render(ShaderType::Phong, current_camera);
+        scene.render(ShaderType::Phong, current_camera, fog_color);
 
         auto floor_shader = Shader("./shaders/floor_shader.glsl");
         for (int i = 0; i < 20; i++)
@@ -266,10 +281,10 @@ void render_street_with_shader(Shader shader, const vertex_array& vao, std::vect
     RenderedItem::setUpSpotLights(shader, spotLights);
     RenderedItem::setUpDirectionalLight(shader, dir_light);
 
-    float last_camera_postion_checkpoint = std::ceil(curent_camera.Position.z / 10.0f)*10.0f;
-
+    float camera_look_at_direction = curent_camera.Front.z >= 0.0f ? -1.0f : 1.0f;
+    float last_camera_postion_checkpoint = std::ceil((curent_camera.Position.z + camera_look_at_direction * 10.0f) / 10.0f)*10.0f;
     auto model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0, 0.5f, -10.0f* order_number + last_camera_postion_checkpoint));
+    model = glm::translate(model, glm::vec3(0.0, 0.5f, -10.0f* order_number * camera_look_at_direction + last_camera_postion_checkpoint));
     model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
     shader.set4Matrix("model", model);
 

@@ -12,6 +12,13 @@ enum Camera_Movement {
     RIGHT
 };
 
+enum Camera_Option
+{
+    STATIONARY,
+    LOOK_AT_CAR,
+    FOLLOW_THE_CAR
+};
+
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
@@ -37,6 +44,8 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+
+    bool update_with_front = false;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -119,7 +128,10 @@ private:
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
+        
+
+        if(!update_with_front)
+            Front = glm::normalize(front);
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));

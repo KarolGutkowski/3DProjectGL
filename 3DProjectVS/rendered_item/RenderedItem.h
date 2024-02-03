@@ -40,6 +40,11 @@ public:
 		model.Translate(vector);
 	}
 
+	glm::vec3 get_current_position()
+	{
+		return model.current_translation;
+	}
+
 	void rotateByDegreesAroundY(float degrees)
 	{
 		model.Rotate(glm::vec3(0.0f, degrees, 0.0f));

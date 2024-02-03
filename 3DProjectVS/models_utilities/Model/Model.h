@@ -41,8 +41,8 @@ public:
 
         return model;
     }
-protected:
     glm::vec3 current_translation;
+protected:
     glm::vec3 rotation_degrees;
     glm::vec3 current_scaling;
 
