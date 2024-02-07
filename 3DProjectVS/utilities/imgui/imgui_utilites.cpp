@@ -17,7 +17,7 @@ void destroyImGuiContext() {
 
 void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, 
     DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights,
-    BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType)
+    BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType, bool& move_car)
 {
     ImGuiIO& io = ImGui::GetIO();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -58,12 +58,18 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
             ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabItem("Car lights"))
+        if (ImGui::BeginTabItem("Car"))
         {
             ImGui::SliderFloat3("front left direction", &police_car_lights[0].direction.x, -1.0f, 1.0f);
             ImGui::SliderFloat3("front right direction", &police_car_lights[1].direction.x, -1.0f, 1.0f);
             ImGui::SliderFloat3("back left direction", &police_car_lights[2].direction.x, -1.0f, 1.0f);
             ImGui::SliderFloat3("back right direction", &police_car_lights[3].direction.x, -1.0f, 1.0f);
+
+
+            if (ImGui::Button("Move/Stop car"))
+            {
+                move_car = !move_car;
+            }
 
             ImGui::EndTabItem();
         }

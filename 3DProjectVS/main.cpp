@@ -146,7 +146,7 @@ int main(void)
     camera.Position.x = 0.5f;
     camera.Position.z = 2.0f;
 
-    car.attached_camera.Position = glm::vec3(1.0f, 4.5f, 6.0f);
+    car.attached_camera.Position = glm::vec3(1.0f, 4.5f, 9.0f);
     car.Rotate(glm::vec3(0.0f, -90.0f, 0.0f));
     //car.model_matrix = glm::translate(car.model_matrix, glm::vec3(0.0f, 0.0f, 11.0f));
     auto chosen_camera_option = Camera_Option::STATIONARY;
@@ -159,6 +159,7 @@ int main(void)
     //camera_looking_at_car.Front = car. camera_looking_at_car.Position//
 
     ShaderType current_shader_type = ShaderType::Phong;
+    bool move_car = false;
     while (!glfwWindowShouldClose(window))  
     {
         camera_looking_at_car.Front = scene.get_car_position() - camera_looking_at_car.Position;
@@ -175,7 +176,7 @@ int main(void)
 
         ImGuiNewFrame();
 
-        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights(), scene.bezier, chosen_camera_option, current_shader_type);
+        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights(), scene.bezier, chosen_camera_option, current_shader_type, move_car);
         glClearColor(fog_color.x, fog_color.y, fog_color.z, 0.1f);
 
 
@@ -184,7 +185,7 @@ int main(void)
             renderLight(light_shader, vao, lights[i].position, current_camera, lights[i].diffuse, fog_color);
         }
         carShader = Shader("./shaders/police-car-shader.glsl");
-        scene.render(current_shader_type, current_camera, fog_color);
+        scene.render(current_shader_type, current_camera, fog_color, move_car);
 
         auto floor_shader = Shader("./shaders/floor_shader.glsl");
         if (current_shader_type == ShaderType::Gourard)

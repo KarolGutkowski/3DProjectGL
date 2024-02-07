@@ -47,10 +47,7 @@ public:
 	{
 		current_translation += translation_vector;
 		attached_camera.Position = current_translation + glm::rotateY(camera_relative_position, glm::radians(rotation_degrees.y+90.0f));
-		for (int i = 0; i < car_lights.size(); i++)
-		{
-			car_lights[i].position = current_translation + car_lights_relative_positions[i];
-		}
+		updateLights();
 	}
 
 	void Scale(glm::vec3 scaling_vector) override
@@ -63,20 +60,37 @@ public:
 	{ 
 		rotation_degrees += rotation_vector;
 		if (!initial_rotation)
+		{
+			attached_camera.Position = current_translation + glm::rotateY(camera_relative_position, glm::radians(rotation_degrees.y + 90.0f));
 			attached_camera.Yaw -= rotation_vector.y;
+
+			updateLights();
+		}
 		initial_rotation = false;
 	}
 
-	std::vector<SpotLight>& getModelSpotLights() override
+	std::vector<SpotLight>& getModelSpotLights() override 
 	{
 		return car_lights;
 	}
 		
 
 private:
+
+	void updateLights()
+	{
+		for (int i = 0; i < car_lights.size(); i++)
+		{
+			auto postion_rotation = glm::rotateY(car_lights_relative_positions[i], glm::radians(rotation_degrees.y + 90.0f));
+			car_lights[i].position = current_translation + postion_rotation;
+
+			auto direction_rotation = glm::rotateY(initial_light_directions[i], glm::radians(rotation_degrees.y + 90.0f));
+			car_lights[i].direction = direction_rotation;
+		}
+	}
 	std::vector<SpotLight> car_lights;
 	std::vector<glm::vec3> car_lights_relative_positions;
-
+	std::vector<glm::vec3> initial_light_directions;
 	/*std::vector<SpotLight> back_lights;
 	std::vector<glm::vec3> back_lights_relative_positions;*/
 
@@ -140,6 +154,11 @@ private:
 		car_lights.push_back(spotLightRight);
 		car_lights.push_back(spotLightLeftBack);
 		car_lights.push_back(spotLightRightBack);
+
+		for (int i = 0; i < car_lights.size(); i++)
+		{
+			initial_light_directions.push_back(car_lights[i].direction);
+		}
 	}
 
 };
