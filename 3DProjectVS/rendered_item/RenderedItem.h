@@ -24,7 +24,23 @@ public:
 		Camera& camera,
 		glm::vec3 fogColor)
 	{
-		phongShader.use();
+
+		if (shading_type == ShaderType::Phong)
+		{
+			auto shader_phong = Shader("./shaders/police-car-shader.glsl");
+			shader_phong.use();
+		}
+		else if (shading_type == ShaderType::Gourard)
+		{
+			auto shader_gourard = Shader("./shaders/police-car_shader_gourard.glsl");
+			shader_gourard.use();
+		}
+		else if (shading_type == ShaderType::Constant)
+		{
+			auto flat_shader = Shader("./shaders/police-car-shader_flat.glsl");
+			flat_shader.use();
+		}
+
 		setUpPointLightsWithShader(phongShader, point_lights); 
 		setUpCameraWithShader(phongShader, camera);
 		setUpModelWithShader(phongShader, model.get_model_matrix());

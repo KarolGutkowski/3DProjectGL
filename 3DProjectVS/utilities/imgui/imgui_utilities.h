@@ -10,10 +10,11 @@
 #include "light/SpotLight.h"
 #include <vector>
 #include "models_utilities/BezierSurface/BezierSurface.h"
+#include "shaders/ShaderType.h"
 
 void initializeImGui(GLFWwindow* window);
 void destroyImGuiContext();
-void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights, BezierSurface& bezier, Camera_Option& chosen_camera);
+void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights, BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType);
 void ImGuiNewFrame();
 void renderImGui();
 

@@ -38,7 +38,7 @@ public:
 	int current_rotation_sign = 1;
 	void render(ShaderType shading_type, Camera camera, glm::vec3 fogColor)
 	{
-		items[0].moveBy(glm::vec3(0.0f, 0.0f, -0.2f));
+		//items[0].moveBy(glm::vec3(0.0f, 0.0f, -0.2f));
 		//items[0].rotateByDegreesAroundY(current_rotation_sign * 0.1f); 
 		//current_rotation_sign *= -1;
 		spot_lights = items[0].getItemsLights();

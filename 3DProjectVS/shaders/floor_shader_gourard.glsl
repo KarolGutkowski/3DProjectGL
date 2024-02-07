@@ -4,30 +4,6 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 
-out vec2 TexCoords;
-/**out vec3 Normal;*/
-out vec3 FragPos;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-void main()
-{
-    TexCoords = aTexCoords;
-    /**Normal = mat3(transpose(inverse(model))) * aNormal;*/
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
-}
-
-//#shader fragment
-#version 330 core
-out vec4 FragColor;
-
-in vec2 TexCoords;
-/**in vec3 Normal;*/
-in vec3 FragPos;
-
 struct PointLight {
     vec3 position;
 
@@ -63,11 +39,18 @@ struct DirectionalLight
     vec3 specular;
 };
 
+out vec2 TexCoords;
+out vec3 FragPos;
+out vec3 fragColor;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 uniform vec3 viewPos;
 uniform sampler2D texture_diffuse;
 uniform sampler2D texture_specular;
 uniform sampler2D texture_normal;
-uniform vec3 fogColor;
 #define NR_POINT_LIGHTS 4
 #define NR_SPOT_LIGHTS 4
 uniform PointLight pointLights[NR_POINT_LIGHTS];
@@ -75,12 +58,14 @@ uniform SpotLight  spotLights[NR_SPOT_LIGHTS];
 uniform DirectionalLight directionalLight;
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture);
-float getFogFactor(float d);
 vec3 CalculateSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture);
 vec3 CalculateDirectionalLight(DirectionalLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture);
 
 void main()
 {
+    TexCoords = aTexCoords;
+    FragPos = vec3(model * vec4(aPos, 1.0));
+
     vec3 Normal = vec3(texture(texture_normal, TexCoords));
     vec3 norm = normalize(Normal);
 
@@ -91,6 +76,7 @@ void main()
 
     vec3 currentTexture = vec3(texture(texture_diffuse, TexCoords));
     vec3 specularTexture = vec3(texture(texture_specular, TexCoords));
+
     for (int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir, currentTexture, specularTexture);
@@ -101,11 +87,11 @@ void main()
         result += CalculateSpotLight(spotLights[i], norm, FragPos, viewDir, currentTexture, specularTexture);
     }
 
-    float fogFactor = getFogFactor(distance(viewPos, FragPos));
-
     result+= CalculateDirectionalLight(directionalLight, norm, FragPos, viewDir, currentTexture, specularTexture);
 
-    FragColor = mix(vec4(clamp(result, vec3(0.0f) ,vec3(1.0f)), 1.0f), vec4(fogColor, 1.0f), fogFactor);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+
+    fragColor = result;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture) {
@@ -126,17 +112,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     return (ambient + diffuse + specular) * attenuation;
 }
 
-float getFogFactor(float d)
-{
-    const float FogMax = 50.0;
-    const float FogMin = 10.0;
-
-    if (d>=FogMax) return 1;
-    if (d<=FogMin) return 0;
-
-    return 1 - (FogMax - d) / (FogMax - FogMin);
-}
-
 vec3 CalculateSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec3 currentTexture, vec3 specularTexture)
 {
     vec3 ambient = light.ambient * currentTexture;
@@ -154,7 +129,7 @@ vec3 CalculateSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir, 
     //diff = abs(dot(norm, lightDir));
     vec3 diffuse = light.diffuse * diff * currentTexture;
 
-    // specular 
+    // specular
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 65.0f);
     vec3 specular = light.specular * spec * specularTexture;
@@ -179,3 +154,34 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 norm, vec3 fragPos, 
 
     return ambient + diffuse + specular;
 }
+
+//#shader fragment
+#version 330 core
+out vec4 FragColor;
+
+in vec3 FragPos;
+in vec3 fragColor;
+
+uniform vec3 viewPos;
+uniform vec3 fogColor;
+
+float getFogFactor(float d);
+
+void main()
+{
+    float fogFactor = getFogFactor(distance(viewPos, FragPos));
+    FragColor = mix(vec4(clamp(fragColor, vec3(0.0f) ,vec3(1.0f)), 1.0f), vec4(fogColor, 1.0f), fogFactor);
+}
+
+
+float getFogFactor(float d)
+{
+    const float FogMax = 50.0;
+    const float FogMin = 10.0;
+
+    if (d>=FogMax) return 1;
+    if (d<=FogMin) return 0;
+
+    return 1 - (FogMax - d) / (FogMax - FogMin);
+}
+

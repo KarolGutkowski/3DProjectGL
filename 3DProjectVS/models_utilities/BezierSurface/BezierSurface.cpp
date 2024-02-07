@@ -176,14 +176,25 @@ void BezierSurface::render(ShaderType shading_type, const std::vector<PointLight
 
 	auto model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	//model = glm::translate(model, glm::vec3(-15.0f, -5.0f, -60.0f));
-	model = glm::scale(model, glm::vec3(2.0f)); //uniform scaling x10 for visibility
+	model = glm::translate(model, glm::vec3(-15.0f, -2.0f, -35.0f));
+	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 30.0f)); //uniform scaling x10 for visibility
 	//model = glm::rotate(model, glm::radians((float)glfwGetTime()*10.0f), glm::vec3(0.0, 1.0f, 0.0f));
 	auto view = camera.GetViewMatrix();
 	auto projection = glm::perspective(glm::radians(camera.Zoom), (float)1200 / (float)900, 0.1f, 100.0f);
 
 	auto shader = phongShader; // TODO change this later to any shader type chosen in rendering
-	shader = Shader("./shaders/shader.glsl"); 
+	if (shading_type == ShaderType::Gourard)
+	{
+		shader = Shader("./shaders/shader_gourard.glsl");
+	}
+	else if (shading_type == ShaderType::Phong)
+	{
+		shader = Shader("./shaders/shader.glsl");
+	}
+	else if(shading_type == ShaderType::Constant)
+	{
+		shader = Shader("./shaders/shader_constant.glsl");
+	}
 	shader.use();
 	
 	RenderedItem::setUpPointLightsWithShader(shader, point_lights);

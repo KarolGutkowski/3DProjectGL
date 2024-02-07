@@ -1,5 +1,6 @@
 #include "imgui_utilities.h"
 
+
 void initializeImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -16,8 +17,7 @@ void destroyImGuiContext() {
 
 void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, 
     DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights,
-    BezierSurface& bezier,
-    Camera_Option& chosen_camera)
+    BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType)
 {
     ImGuiIO& io = ImGui::GetIO();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -103,6 +103,26 @@ void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color,
                 }
             }
             
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Shading Types"))
+        {
+            if (ImGui::Button("Flat Shading"))
+            {
+                shadingType = ShaderType::Constant;
+            }
+
+            if (ImGui::Button("Gourard Shading"))
+            {
+                shadingType = ShaderType::Gourard;
+            }
+
+            if (ImGui::Button("Phong Shading"))
+            {
+                shadingType = ShaderType::Phong;
+            }
+
             ImGui::EndTabItem();
         }
 
