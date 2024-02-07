@@ -21,7 +21,7 @@ void clearBuffers();
 std::vector<PointLight> generatePointLights(glm::vec3 pointLightPositions[]);
 void renderLight(Shader shader, const vertex_array& vao, glm::vec3 position, Camera camera, glm::vec3 color, glm::vec3 fogColor);
 void setUpLights(Shader& shader, std::vector<PointLight> pointLights);
-void drawWithShader(Shader shader, glm::vec3 pointLightPositions[], const Model& element, glm::mat4 model);
+void drawWithShader(Shader shader, glm::vec3 pointLightPositions[], Model& element, glm::mat4 model);
 void render_street_with_shader(Shader shader, const vertex_array& vao, std::vector<PointLight> pointLights, GLuint texture_base, GLuint texture_specular, GLuint texture_normal, int order_number, Camera curent_camera, glm::vec3 fogColor, std::vector<SpotLight> spotLights, DirectionalLight dir_light);
 
 int main(void)
@@ -176,7 +176,7 @@ int main(void)
 
         ImGuiNewFrame();
 
-        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getItemsLights(), scene.bezier, chosen_camera_option, current_shader_type, move_car);
+        generateImGuiWindow(camera, current_camera, fog_color, scene.getDirLight(), police_car.getLightDirections(), scene.bezier, chosen_camera_option, current_shader_type, move_car);
         glClearColor(fog_color.x, fog_color.y, fog_color.z, 0.1f);
 
 
@@ -214,7 +214,7 @@ int main(void)
 }
 
 
-void drawWithShader(Shader shader, std::vector<PointLight> pointLights, const Model& element, glm::mat4 model) {
+void drawWithShader(Shader shader, std::vector<PointLight> pointLights, Model& element, glm::mat4 model) {
     // don't forget to enable shader before setting uniforms
     shader.use();
     setUpLights(shader, pointLights);

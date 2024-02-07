@@ -14,7 +14,7 @@
 
 void initializeImGui(GLFWwindow* window);
 void destroyImGuiContext();
-void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, DirectionalLight& dir_light, std::vector<SpotLight>& police_car_lights, BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType, bool& move_car);
+void generateImGuiWindow(Camera& camera, Camera& camera2, glm::vec3& fog_color, DirectionalLight& dir_light, std::vector<glm::vec3>& police_car_lights_dirss, BezierSurface& bezier, Camera_Option& chosen_camera, ShaderType& shadingType, bool& move_car);
 void ImGuiNewFrame();
 void renderImGui();
 

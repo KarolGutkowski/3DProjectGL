@@ -71,6 +71,11 @@ public:
 		shader.setVec3("fogColor", fogColor);
 	}
 
+	std::vector<glm::vec3>& getLightDirections()
+	{
+		return model.getLightDirections();
+	}
+
 	static void setUpSpotLights(Shader& shader, const std::vector<SpotLight> spot_lights)
 	{
 		for (int i = 0; i < spot_lights.size(); i++)

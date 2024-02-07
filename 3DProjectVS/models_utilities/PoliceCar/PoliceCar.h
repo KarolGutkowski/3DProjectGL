@@ -35,8 +35,9 @@ public:
 		generateFrontLights();
 	}
 
-	void Draw(Shader& shader) const override
+	void Draw(Shader& shader) override
 	{
+		updateLights();
 		for (const auto& mesh : meshes)
 			mesh.Draw(shader);
 	}
@@ -74,6 +75,10 @@ public:
 		return car_lights;
 	}
 		
+	std::vector<glm::vec3>& getLightDirections() override
+	{
+		return initial_light_directions;
+	}
 
 private:
 

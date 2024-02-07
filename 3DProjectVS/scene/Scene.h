@@ -59,6 +59,11 @@ public:
 		return items[0].getItemsLights();;
 	}
 
+	std::vector<glm::vec3> getSpotLightDirections()
+	{
+		items[0].getLightDirections();
+	}
+
 	DirectionalLight& getDirLight()
 	{
 		return dir_light;

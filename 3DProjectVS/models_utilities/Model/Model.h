@@ -18,14 +18,14 @@
 
 class Model {
 public:
-    virtual void Draw(Shader& shader) const = 0;
+    virtual void Draw(Shader& shader) = 0;
 
     virtual void Rotate(glm::vec3 rotation_vector) = 0;
     virtual void Scale(glm::vec3 scaling_vector) = 0;
     virtual void Translate(glm::vec3 translation_vector) = 0;
     bool has_lights = false;
     virtual std::vector<SpotLight>& getModelSpotLights() = 0;
-
+    virtual std::vector<glm::vec3>& getLightDirections() = 0;
     glm::mat4 model_matrix = glm::mat4(1.0f);
     bool has_camera_attached_to_it = false;
     Camera attached_camera;
