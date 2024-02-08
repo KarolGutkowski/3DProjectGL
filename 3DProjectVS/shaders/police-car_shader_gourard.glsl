@@ -49,7 +49,7 @@ void main()
 //vertex shader calcualtions
     TexCoords = aTexCoords;
     vec3 Normal = mat3(transpose(inverse(model))) * aNormal;
-    FragPos = vec3(model * vec4(aPos, 1.0));
+    FragPos = vec3(model * vec4(aPos, 1.0f));
 
 //gourard shading
     vec3 norm = normalize(Normal);
@@ -67,7 +67,7 @@ void main()
 
     fragColor = result;
 
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {

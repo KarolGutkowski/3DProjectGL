@@ -2,7 +2,7 @@
 #define POLICE_CAR_H
 
 #include "models_utilities/Model/Model.h"
-#include <glm/gtx/rotate_vector.hpp>
+#include <GLM/gtx/rotate_vector.hpp>
 
 class PoliceCar : public Model
 {

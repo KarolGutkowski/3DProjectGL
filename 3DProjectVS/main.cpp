@@ -130,12 +130,13 @@ int main(void)
 
     auto carShader = Shader("./shaders/police-car-shader.glsl");
     auto carGourardShader = Shader("./shaders/police-car_shader_gourard.glsl");
+    auto carFlatShader = Shader("./shaders/police-car-shader_flat.glsl");
 
     auto police_car_model = PoliceCar("./models/car/cars.obj");
     
     auto lights = generatePointLights(pointLightPositions);
 
-    auto police_car = RenderedItem(car, carShader, carGourardShader, carShader);
+    auto police_car = RenderedItem(car, carFlatShader, carGourardShader, carShader);
     std::vector<RenderedItem> items { police_car };
 
     auto fog_color = glm::vec3(163 / 255.0f, 234 / 255.0f, 255 / 255.0f);
@@ -160,7 +161,11 @@ int main(void)
 
     ShaderType current_shader_type = ShaderType::Phong;
     bool move_car = false;
-    while (!glfwWindowShouldClose(window))  
+
+    auto floor_shader_phong = Shader("./shaders/floor_shader.glsl");
+    auto floor_shader_gourard = Shader("./shaders/floor_shader_gourard.glsl");
+    auto floor_shader_flat = Shader("./shaders/floor_shader_flat.glsl");
+    while (!glfwWindowShouldClose(window))
     {
         camera_looking_at_car.Front = scene.get_car_position() - camera_looking_at_car.Position;
 
@@ -184,17 +189,16 @@ int main(void)
         {
             renderLight(light_shader, vao, lights[i].position, current_camera, lights[i].diffuse, fog_color);
         }
-        carShader = Shader("./shaders/police-car-shader.glsl");
         scene.render(current_shader_type, current_camera, fog_color, move_car);
 
-        auto floor_shader = Shader("./shaders/floor_shader.glsl");
+        auto floor_shader = floor_shader_phong;
         if (current_shader_type == ShaderType::Gourard)
         {
-            floor_shader = Shader("./shaders/floor_shader_gourard.glsl");
+            floor_shader = floor_shader_gourard;
         }
         else if (current_shader_type == ShaderType::Constant)
         {
-            floor_shader = Shader("./shaders/floor_shader_flat.glsl");
+            floor_shader = floor_shader_flat;
         }
 
         for (int i = 0; i < 20; i++)

@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.26.4)
+cmake_minimum_required(VERSION 3.25.2)
 
 project(3DProject CXX C)
-
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenGL REQUIRED)
@@ -9,26 +8,32 @@ find_package(OpenGL REQUIRED)
 add_executable(${CMAKE_PROJECT_NAME}
         main.cpp
         glad.c
-        utilities/glfw/glfw_utilities.cpp
-        utilities/report_error/report_error.h
-        utilities/glfw/glfw_utilities.h
+        state.cpp
+        state.h
+        utilities/gl/gl_utilities.cpp
+        utilities/gl/gl_utilities.h
         utilities/glad/glad_functions.cpp
         utilities/glad/glad_functions.h
+        utilities/glfw/glfw_callbacks.cpp
+        utilities/glfw/glfw_callbacks.h
+        utilities/glfw/glfw_utilities.cpp
+        utilities/glfw/glfw_utilities.h
+        utilities/imgui/imgui_utilites.cpp
+        utilities/imgui/imgui_utilities.h
         utilities/report_error/report_error.cpp
-        utilities/stb_image/stb_image.h
+        utilities/report_error/report_error.h
         utilities/stb_image/stb_image.cpp
-        camera/camera.h
+        utilities/stb_image/stb_image.h
+        textures/texture_utils.cpp
+        textures/texture_utils.h
         shaders/shaders_utils.h
         shaders/shaders_utils.cpp
         shaders/Shader.h
-        utilities/glfw/glfw_callbacks.h
-        utilities/glfw/glfw_callbacks.cpp
-        state.h
-        state.cpp
-        utilities/gl/gl_utilities.cpp
-        utilities/gl/gl_utilities.h
-        renderer/renderer.h
+        shaders/ShaderType.h
+        scene/Scene.h
         renderer/renderer.cpp
+        renderer/renderer.h
+        rendered_item/RenderedItem.h
         opengl_abstractions/vertex_buffer/vertex_buffer.h
         opengl_abstractions/vertex_buffer/vertex_buffer.cpp
         opengl_abstractions/index_buffer/index_buffer.cpp
@@ -37,31 +42,40 @@ add_executable(${CMAKE_PROJECT_NAME}
         opengl_abstractions/vertex_array/vertex_array.cpp
         opengl_abstractions/vertex_buffer_layout/vertex_buffer_layout.h
         opengl_abstractions/vertex_buffer_layout/vertex_buffer_layout.cpp
+        models_utilities/BezierSurface/Bernstein.h
+        models_utilities/BezierSurface/BezierSurface.cpp
+        models_utilities/BezierSurface/BezierSurface.h
         models_utilities/Vertex.h
         models_utilities/Texture.h
         models_utilities/Mesh/Mesh.h
         models_utilities/Mesh/Mesh.cpp
         models_utilities/Model/Model.h
         models_utilities/Model/Model.cpp
-        imgui/imgui_demo.cpp
-        imgui/imgui.cpp
+        models_utilities/PoliceCar/PoliceCar.h
+        models_utilities/Material.h
+        models_utilities/Texture.h
+        models_utilities/Vertex.h
+        light/DirectionaLight.h
+        light/PointLight.h
+        light/SpotLight.h
         imgui/imconfig.h
+        imgui/imgui.cpp
         imgui/imgui.h
+        imgui/imgui_demo.cpp
         imgui/imgui_draw.cpp
+        imgui/imgui_impl_glfw.cpp
+        imgui/imgui_impl_glfw.h
+        imgui/imgui_impl_opengl3.cpp
+        imgui/imgui_impl_opengl3.h
+        imgui/imgui_impl_opengl3_loader.h
         imgui/imgui_internal.h
         imgui/imgui_tables.cpp
         imgui/imgui_widgets.cpp
         imgui/imstb_rectpack.h
         imgui/imstb_textedit.h
         imgui/imstb_truetype.h
-        imgui/imgui_impl_glfw.h
-        imgui/imgui_impl_glfw.cpp
-        imgui/imgui_impl_opengl3.cpp
-        imgui/imgui_impl_opengl3.h
-        imgui/imgui_impl_opengl3_loader.h
-        utilities/imgui/imgui_utilities.h
-        utilities/imgui/imgui_utilites.cpp
-)
+        camera/camera.h
+        )
 
 add_custom_target(copy_shaders ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -75,13 +89,23 @@ add_custom_target(copy_models ALL
         ${PROJECT_BINARY_DIR}/models
         COMMENT "Copying models to source binary")
 
-add_dependencies(${CMAKE_PROJECT_NAME} copy_shaders copy_models)
+add_custom_target(copy_road_texture ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${PROJECT_SOURCE_DIR}/textures/road_texture
+        ${PROJECT_BINARY_DIR}/textures/road_texture
+        COMMENT "Copying models to source binary")
+
+add_dependencies(${CMAKE_PROJECT_NAME} copy_shaders copy_models copy_road_texture)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/
-    ${CMAKE_CURRENT_SOURCE_DIR}/Includes/
-    ${CMAKE_CURRENT_SOURCE_DIR}/Libraries/)
-
+        ${CMAKE_CURRENT_SOURCE_DIR}/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Includes/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Libraries/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Includes/GLM
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Includes/glad
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Includes/KHR
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Includes/GLFW)
 
 add_subdirectory( glfw )
 add_subdirectory(assimp)

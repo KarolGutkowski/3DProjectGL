@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include "shaders_utils.h"
-#include "glm/gtc/type_ptr.hpp"
+#include "GLM/gtc/type_ptr.hpp"
 
 class Shader
 {

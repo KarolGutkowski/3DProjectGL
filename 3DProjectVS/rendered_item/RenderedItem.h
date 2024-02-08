@@ -24,31 +24,32 @@ public:
 		Camera& camera,
 		glm::vec3 fogColor)
 	{
-
+        Shader currentShader = phongShader;
 		if (shading_type == ShaderType::Phong)
 		{
-			auto shader_phong = Shader("./shaders/police-car-shader.glsl");
-			shader_phong.use();
+            currentShader = phongShader;
+			phongShader.use();
 		}
 		else if (shading_type == ShaderType::Gourard)
 		{
-			auto shader_gourard = Shader("./shaders/police-car_shader_gourard.glsl");
-			shader_gourard.use();
+			//auto shader_gourard = Shader("./shaders/police-car_shader_gourard.glsl");
+            currentShader = gourardShader;
+			gourardShader.use();
 		}
 		else if (shading_type == ShaderType::Constant)
 		{
-			auto flat_shader = Shader("./shaders/police-car-shader_flat.glsl");
-			flat_shader.use();
+            currentShader = constantShader;
+			constantShader.use();
 		}
 
-		setUpPointLightsWithShader(phongShader, point_lights); 
-		setUpCameraWithShader(phongShader, camera);
-		setUpModelWithShader(phongShader, model.get_model_matrix());
-		setUpFog(phongShader, fogColor);
-		setUpSpotLights(phongShader, spot_lights);
-		setUpDirectionalLight(phongShader, dir_light);
+		setUpPointLightsWithShader(currentShader, point_lights);
+		setUpCameraWithShader(currentShader, camera);
+		setUpModelWithShader(currentShader, model.get_model_matrix());
+		setUpFog(currentShader, fogColor);
+		setUpSpotLights(currentShader, spot_lights);
+		setUpDirectionalLight(currentShader, dir_light);
 
-		model.Draw(phongShader);
+		model.Draw(currentShader);
 	}
 
 	void moveBy(glm::vec3 vector)
