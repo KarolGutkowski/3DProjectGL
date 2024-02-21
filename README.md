@@ -17,7 +17,5 @@ This was a great way to test out my abilities in programming 3D graphics and a g
 |:--:| 
 | *3D Police Car model in night scenery with spot lights in front and in the back* |
 
+https://github.com/KarolGutkowski/3DProjectGL/assets/90787864/6207ec4d-55e4-4a03-89da-36ad8e345922
 
-https://github.com/KarolGutkowski/3DProjectGL/assets/90787864/059ba60f-e773-4aa0-9433-302bc44438b1
-|:--:| 
-| *3D Police Car model in night scenery with spot lights in front and in the back driving into the fog* |
